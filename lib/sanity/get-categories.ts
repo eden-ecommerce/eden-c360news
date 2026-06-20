@@ -4,19 +4,31 @@ import { fetchSanityDirect } from "@lib/sanity/direct-fetch";
 import { cache } from "react";
 import { z } from "zod";
 
-// Tags are plain strings on each article — no separate category document type.
-// We fetch all distinct tag values across published articles and sort them.
+// Fetch the 40 most-used tags across articles, ordered by frequency descending.
 const TAGS_QUERY = `
-  array::unique(*[_type == "article" && defined(tags)].tags[])
+  *[_type == "article" && defined(tags)] {
+    tags[]
+  }
 `;
 
-/** Fetch all distinct tags used across articles, sorted alphabetically. */
+/** Fetch the top 40 most-used tags across articles, sorted by frequency. */
 export const getArticleTags = cache(async (): Promise<string[]> => {
   const result = await fetchSanityDirect(TAGS_QUERY, undefined, ["article"]);
   if (result.isErr()) return [];
 
-  const parsed = z.array(z.string()).safeParse(result.value);
+  const parsed = z.array(z.object({ tags: z.array(z.string()).nullish() })).safeParse(result.value);
   if (!parsed.success) return [];
 
-  return parsed.data.filter(Boolean).sort((a, b) => a.localeCompare(b));
+  // Count frequency of each tag
+  const freq: Record<string, number> = {};
+  for (const doc of parsed.data) {
+    for (const tag of doc.tags ?? []) {
+      if (tag) freq[tag] = (freq[tag] ?? 0) + 1;
+    }
+  }
+
+  return Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 40)
+    .map(([tag]) => tag);
 });
