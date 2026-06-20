@@ -1,9 +1,13 @@
 import { type Article } from "@lib/sanity/get-articles";
+import { sanityImageUrl } from "@lib/sanity/image-url";
 import { PortableText } from "@components/ui/PortableText";
+import type { AlgoliaProductHit } from "@lib/algolia/fetch-products-by-isbn";
+import Image from "next/image";
 import Link from "next/link";
 
 type ArticleDetailPageProps = {
   article: Article;
+  carouselProductMap?: Map<string, AlgoliaProductHit[]>;
 };
 
 function formatDate(iso: string): string {
@@ -14,7 +18,14 @@ function formatDate(iso: string): string {
   });
 }
 
-export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
+export function ArticleDetailPage({ article, carouselProductMap }: ArticleDetailPageProps) {
+  const heroUrl = article.thumbnail
+    ? sanityImageUrl(
+        { _type: "reference", _ref: article.thumbnail.assetRef },
+        { width: 1200, height: 630, fit: "crop" },
+      )
+    : null;
+
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       {/* Back link */}
@@ -55,6 +66,20 @@ export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
         )}
       </div>
 
+      {/* Hero image */}
+      {heroUrl && (
+        <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-8 bg-muted">
+          <Image
+            src={heroUrl}
+            alt={article.thumbnail?.alt ?? article.title}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 768px"
+            className="object-cover"
+          />
+        </div>
+      )}
+
       {/* Excerpt lead */}
       {article.excerpt && (
         <p className="text-xl text-muted-foreground leading-relaxed mb-8 font-light">
@@ -65,7 +90,10 @@ export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
       {/* Body */}
       {article.richText && article.richText.length > 0 ? (
         <div className="prose prose-lg prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground max-w-none">
-          <PortableText value={article.richText} />
+          <PortableText
+            value={article.richText}
+            carouselProductMap={carouselProductMap}
+          />
         </div>
       ) : (
         <p className="text-muted-foreground">No content available for this article.</p>

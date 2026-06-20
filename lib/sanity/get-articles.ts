@@ -12,6 +12,17 @@ import { z } from "zod";
 
 const portableTextBlockSchema = z.record(z.unknown());
 
+const sanityImageAssetSchema = z.object({
+  _ref: z.string(),
+  _type: z.literal("reference"),
+});
+
+const thumbnailSchema = z.object({
+  _type: z.string(),
+  alt: z.string().nullish(),
+  asset: sanityImageAssetSchema.nullish(),
+}).nullish();
+
 const articleSchema = z.object({
   _id: z.string().nullish(),
   title: z.string().nullish(),
@@ -19,6 +30,7 @@ const articleSchema = z.object({
   metaDescription: z.string().nullish(),
   datePublished: z.string().nullish(),
   tags: z.array(z.string()).nullish(),
+  thumbnail: thumbnailSchema,
   richText: z.array(portableTextBlockSchema).nullish(),
 });
 
@@ -26,11 +38,17 @@ const articleSchema = z.object({
 // Domain type
 // ---------------------------------------------------------------------------
 
+export type ArticleThumbnail = {
+  assetRef: string;
+  alt: string;
+} | null;
+
 export type Article = {
   id: string;
   title: string;
   slug: string;
   excerpt: string | null;
+  thumbnail: ArticleThumbnail;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   richText: any[] | null;
   publishedAt: string | null;
@@ -46,6 +64,9 @@ const mapArticle = (raw: z.infer<typeof articleSchema>): Article => ({
   title: raw.title ?? "",
   slug: raw.slug ?? "",
   excerpt: raw.metaDescription ?? null,
+  thumbnail: raw.thumbnail?.asset?._ref
+    ? { assetRef: raw.thumbnail.asset._ref, alt: raw.thumbnail.alt ?? "" }
+    : null,
   richText: raw.richText ?? null,
   publishedAt: raw.datePublished ?? null,
   tags: raw.tags ?? [],
@@ -62,7 +83,8 @@ const ARTICLE_FIELDS = `
   "slug": slug.current,
   metaDescription,
   datePublished,
-  tags
+  tags,
+  thumbnail{ _type, alt, asset }
 `;
 
 const ARTICLES_QUERY = `*[_type == "article" && defined(slug.current)] | order(datePublished desc) [0..99] {

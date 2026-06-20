@@ -1,6 +1,11 @@
 import { getArticleBySlug } from "@lib/sanity/get-articles";
 import { isSanityEnvConfigured } from "@lib/sanity/direct-fetch";
 import { ArticleDetailPage } from "@components/blog/ArticleDetailPage";
+import {
+  fetchProductsByIds,
+  fetchProductsByIsbn,
+  type AlgoliaProductHit,
+} from "@lib/algolia/fetch-products-by-isbn";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -28,6 +33,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/** Extract all carouselV2 blocks from richText and pre-fetch their products server-side. */
+async function prefetchCarouselProducts(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  richText: any[] | null,
+): Promise<Map<string, AlgoliaProductHit[]>> {
+  const productMap = new Map<string, AlgoliaProductHit[]>();
+  if (!richText) return productMap;
+
+  const carousels = richText.filter((b) => b._type === "carouselV2");
+  await Promise.all(
+    carousels.map(async (block) => {
+      const isbns: string[] = block.products?.productIsbn ?? [];
+      const ids: number[] = block.products?.productIds ?? [];
+      const products =
+        isbns.length > 0
+          ? await fetchProductsByIsbn(isbns)
+          : await fetchProductsByIds(ids);
+      productMap.set(block._key, products);
+    }),
+  );
+  return productMap;
+}
+
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
 
@@ -36,5 +64,9 @@ export default async function ArticlePage({ params }: Props) {
   const article = await getArticleBySlug(slug);
   if (!article) notFound();
 
-  return <ArticleDetailPage article={article} />;
+  const carouselProductMap = await prefetchCarouselProducts(article.richText);
+
+  return (
+    <ArticleDetailPage article={article} carouselProductMap={carouselProductMap} />
+  );
 }

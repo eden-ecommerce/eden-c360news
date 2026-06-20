@@ -1,8 +1,14 @@
 import { algoliasearch, type SearchClient } from "algoliasearch";
 import { isAlgoliaEnvConfigured } from "@lib/env-configured";
 
-const ALGOLIA_APP_ID = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID ?? "";
-const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY ?? "";
+const ALGOLIA_APP_ID =
+  process.env.NEXT_PUBLIC_ALGOLIA_APP_ID ??
+  process.env.ALGOLIA_APPLICATION_ID ??
+  "";
+const ALGOLIA_SEARCH_KEY =
+  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY ??
+  process.env.ALGOLIA_API_KEY ??
+  "";
 
 export const ALGOLIA_INDEXES = {
   products: "products",

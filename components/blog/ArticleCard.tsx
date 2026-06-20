@@ -1,4 +1,6 @@
 import { type Article } from "@lib/sanity/get-articles";
+import { sanityImageUrl } from "@lib/sanity/image-url";
+import Image from "next/image";
 import Link from "next/link";
 
 type ArticleCardProps = {
@@ -16,9 +18,30 @@ function formatDate(iso: string): string {
 export function ArticleCard({ article }: ArticleCardProps) {
   const href = `/blog/${article.slug}`;
   const primaryTag = article.tags[0] ?? null;
+  const thumbnailUrl = article.thumbnail
+    ? sanityImageUrl(
+        { _type: "reference", _ref: article.thumbnail.assetRef },
+        { width: 600, height: 400, fit: "crop" },
+      )
+    : null;
 
   return (
     <article className="group flex flex-col bg-card border border-border rounded-lg overflow-hidden transition-shadow hover:shadow-md">
+      {/* Thumbnail */}
+      {thumbnailUrl && (
+        <Link href={href} tabIndex={-1} aria-hidden>
+          <div className="relative w-full aspect-[3/2] overflow-hidden bg-muted">
+            <Image
+              src={thumbnailUrl}
+              alt={article.thumbnail?.alt ?? article.title}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+        </Link>
+      )}
+
       {/* Content */}
       <div className="flex flex-col flex-1 p-5 gap-3">
         {/* Tag badge */}
