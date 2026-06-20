@@ -1,40 +1,22 @@
 import "server-only";
 
 import { fetchSanityDirect } from "@lib/sanity/direct-fetch";
-import { type ArticleCategory } from "@lib/sanity/get-articles";
 import { cache } from "react";
 import { z } from "zod";
 
-// Fetch all distinct categories that appear on at least one published article.
-const CATEGORIES_QUERY = `
-  *[_type == "category" && count(*[_type == "article" && references(^._id) && defined(slug.current)]) > 0] {
-    _id,
-    title,
-    slug
-  } | order(title asc)
+// Tags are plain strings on each article — no separate category document type.
+// We fetch all distinct tag values across published articles and sort them.
+const TAGS_QUERY = `
+  array::unique(*[_type == "article" && defined(tags)].tags[])
 `;
 
-const categorySchema = z
-  .object({
-    _id: z.string().optional(),
-    title: z.string().optional(),
-    slug: z.object({ current: z.string().optional() }).optional(),
-  })
-  .passthrough();
-
-/** Fetch all article categories that have at least one published article. */
-export const getArticleCategories = cache(async (): Promise<ArticleCategory[]> => {
-  const result = await fetchSanityDirect(CATEGORIES_QUERY, undefined, ["article", "category"]);
+/** Fetch all distinct tags used across articles, sorted alphabetically. */
+export const getArticleTags = cache(async (): Promise<string[]> => {
+  const result = await fetchSanityDirect(TAGS_QUERY, undefined, ["article"]);
   if (result.isErr()) return [];
 
-  const parsed = z.array(categorySchema).safeParse(result.value);
+  const parsed = z.array(z.string()).safeParse(result.value);
   if (!parsed.success) return [];
 
-  return parsed.data
-    .map((raw) => ({
-      id: raw._id ?? "",
-      title: raw.title ?? "",
-      slug: raw.slug?.current ?? "",
-    }))
-    .filter((c) => c.id && c.title && c.slug);
+  return parsed.data.filter(Boolean).sort((a, b) => a.localeCompare(b));
 });

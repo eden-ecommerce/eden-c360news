@@ -1,5 +1,4 @@
 import { type Article } from "@lib/sanity/get-articles";
-import { getSanityImage } from "@lib/sanity/image";
 import { PortableText } from "@components/ui/PortableText";
 import Link from "next/link";
 
@@ -16,10 +15,6 @@ function formatDate(iso: string): string {
 }
 
 export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
-  const imageProps = article.mainImage?.asset?._ref
-    ? getSanityImage(article.mainImage, { width: 1200, height: 630 })
-    : null;
-
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       {/* Back link */}
@@ -33,16 +28,16 @@ export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
         </Link>
       </nav>
 
-      {/* Category labels */}
-      {article.categories.length > 0 && (
+      {/* Tag labels */}
+      {article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
-          {article.categories.map((cat) => (
+          {article.tags.map((tag) => (
             <Link
-              key={cat.id}
-              href={`/blog?category=${cat.slug}`}
+              key={tag}
+              href={`/blog?tag=${encodeURIComponent(tag)}`}
               className="text-xs font-medium uppercase tracking-wider text-primary hover:underline"
             >
-              {cat.title}
+              {tag}
             </Link>
           ))}
         </div>
@@ -58,27 +53,7 @@ export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
         {article.publishedAt && (
           <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
         )}
-        {article.authorName && (
-          <>
-            <span aria-hidden>·</span>
-            <span>{article.authorName}</span>
-          </>
-        )}
       </div>
-
-      {/* Hero image */}
-      {imageProps && (
-        <figure className="mb-10 -mx-4 sm:-mx-6 overflow-hidden rounded-none sm:rounded-lg bg-muted">
-          <img
-            src={imageProps.url}
-            alt={imageProps.alt || article.title}
-            width={imageProps.width}
-            height={imageProps.height}
-            className="w-full object-cover max-h-[480px]"
-            loading="eager"
-          />
-        </figure>
-      )}
 
       {/* Excerpt lead */}
       {article.excerpt && (
@@ -88,9 +63,9 @@ export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
       )}
 
       {/* Body */}
-      {article.body && article.body.length > 0 ? (
+      {article.richText && article.richText.length > 0 ? (
         <div className="prose prose-lg prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground max-w-none">
-          <PortableText value={article.body} />
+          <PortableText value={article.richText} />
         </div>
       ) : (
         <p className="text-muted-foreground">No content available for this article.</p>

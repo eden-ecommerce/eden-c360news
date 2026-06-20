@@ -1,78 +1,33 @@
 import "server-only";
 
 import { fetchSanityDirect } from "@lib/sanity/direct-fetch";
-import { type ImageWithAlt } from "@lib/sanity/image";
 import { cache } from "react";
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
-// Zod schema — all fields are optional for resilience against schema changes.
-// The GROQ query uses an exploratory approach; tighten once the live schema is
-// confirmed via the Sanity Studio.
+// Zod schema — reflects the confirmed live article schema.
+// Fields discovered via exploratory GROQ: _id, title, slug.current,
+// richText, datePublished, metaDescription, pageTitle, tags (string[]),
+// authors (reference array).
 // ---------------------------------------------------------------------------
-
-const categoryRefSchema = z
-  .object({
-    _id: z.string().optional(),
-    title: z.string().optional(),
-    slug: z
-      .object({ current: z.string().optional() })
-      .optional(),
-  })
-  .passthrough();
-
-const slugSchema = z.object({ current: z.string().optional() }).passthrough();
-
-const imageAssetSchema = z
-  .object({
-    _ref: z.string().optional(),
-    _type: z.string().optional(),
-  })
-  .passthrough();
-
-const imageSchema = z
-  .object({
-    asset: imageAssetSchema.optional(),
-    alt: z.string().optional(),
-    hotspot: z
-      .object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() })
-      .optional(),
-  })
-  .passthrough();
 
 const portableTextBlockSchema = z.record(z.unknown());
 
-const articleSchema = z
-  .object({
-    _id: z.string().optional(),
-    _type: z.string().optional(),
-    _updatedAt: z.string().optional(),
-    title: z.string().optional(),
-    slug: slugSchema.optional(),
-    excerpt: z.string().optional(),
-    body: z.array(portableTextBlockSchema).optional(),
-    mainImage: imageSchema.optional(),
-    publishedAt: z.string().optional(),
-    categories: z.array(categoryRefSchema).optional(),
-    author: z
-      .object({
-        name: z.string().optional(),
-        image: imageSchema.optional(),
-      })
-      .passthrough()
-      .optional(),
-  })
-  .passthrough();
+const articleSchema = z.object({
+  _id: z.string().nullish(),
+  _updatedAt: z.string().nullish(),
+  title: z.string().nullish(),
+  pageTitle: z.string().nullish(),
+  slug: z.object({ current: z.string().nullish() }).nullish(),
+  metaDescription: z.string().nullish(),
+  datePublished: z.string().nullish(),
+  tags: z.array(z.string()).nullish(),
+  richText: z.array(portableTextBlockSchema).nullish(),
+});
 
 // ---------------------------------------------------------------------------
 // Domain types
 // ---------------------------------------------------------------------------
-
-export type ArticleCategory = {
-  id: string;
-  title: string;
-  slug: string;
-};
 
 export type Article = {
   id: string;
@@ -80,40 +35,23 @@ export type Article = {
   slug: string;
   excerpt: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  body: any[] | null;
-  mainImage: ImageWithAlt | null;
+  richText: any[] | null;
   publishedAt: string | null;
-  categories: ArticleCategory[];
-  authorName: string | null;
+  tags: string[];
 };
 
 // ---------------------------------------------------------------------------
-// Mappers
+// Mapper
 // ---------------------------------------------------------------------------
-
-const mapCategory = (raw: z.infer<typeof categoryRefSchema>): ArticleCategory => ({
-  id: raw._id ?? "",
-  title: raw.title ?? "",
-  slug: raw.slug?.current ?? "",
-});
 
 const mapArticle = (raw: z.infer<typeof articleSchema>): Article => ({
   id: raw._id ?? "",
   title: raw.title ?? "",
   slug: raw.slug?.current ?? "",
-  excerpt: raw.excerpt ?? null,
-  body: raw.body ?? null,
-  mainImage: raw.mainImage
-    ? {
-        asset: raw.mainImage.asset
-          ? { _ref: raw.mainImage.asset._ref, _type: raw.mainImage.asset._type }
-          : undefined,
-        alt: raw.mainImage.alt,
-      }
-    : null,
-  publishedAt: raw.publishedAt ?? null,
-  categories: (raw.categories ?? []).map(mapCategory),
-  authorName: raw.author?.name ?? null,
+  excerpt: raw.metaDescription ?? null,
+  richText: raw.richText ?? null,
+  publishedAt: raw.datePublished ?? null,
+  tags: raw.tags ?? [],  // nullish coalesces both null and undefined to []
 });
 
 // ---------------------------------------------------------------------------
@@ -122,28 +60,24 @@ const mapArticle = (raw: z.infer<typeof articleSchema>): Article => ({
 
 const ARTICLE_FIELDS = `
   _id,
-  _type,
   _updatedAt,
   title,
+  pageTitle,
   slug,
-  excerpt,
-  publishedAt,
-  mainImage { asset, alt, hotspot },
-  categories[]->{ _id, title, slug },
-  author->{ name, image { asset, alt } }
+  metaDescription,
+  datePublished,
+  tags
 `;
 
-const ARTICLES_QUERY = `*[_type == "article" && defined(slug.current)] | order(publishedAt desc) {
+// Fetch listing data (no richText — keep payload small)
+const ARTICLES_QUERY = `*[_type == "article" && defined(slug.current)] | order(datePublished desc) [0..99] {
   ${ARTICLE_FIELDS}
 }`;
 
-const ARTICLES_BY_CATEGORY_QUERY = `*[_type == "article" && defined(slug.current) && $categorySlug in categories[]->slug.current] | order(publishedAt desc) {
-  ${ARTICLE_FIELDS}
-}`;
-
+// Fetch single article with full richText body
 const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0] {
   ${ARTICLE_FIELDS},
-  body[]
+  richText[]
 }`;
 
 const ALL_SLUGS_QUERY = `*[_type == "article" && defined(slug.current)]{ "slug": slug.current }`;
@@ -152,21 +86,19 @@ const ALL_SLUGS_QUERY = `*[_type == "article" && defined(slug.current)]{ "slug":
 // Public API — all cache()-wrapped per the established pattern
 // ---------------------------------------------------------------------------
 
-/** Fetch all articles, optionally filtered to a category slug. */
-export const getArticles = cache(
-  async (categorySlug?: string): Promise<Article[]> => {
-    const query = categorySlug ? ARTICLES_BY_CATEGORY_QUERY : ARTICLES_QUERY;
-    const params = categorySlug ? { categorySlug } : undefined;
-    const result = await fetchSanityDirect(query, params, ["article"]);
+/** Fetch articles for the listing page, optionally filtered by a tag. */
+export const getArticles = cache(async (): Promise<Article[]> => {
+  const result = await fetchSanityDirect(ARTICLES_QUERY, undefined, ["article"]);
+  if (result.isErr()) return [];
 
-    if (result.isErr()) return [];
+  const parsed = z.array(articleSchema).safeParse(result.value);
+  if (!parsed.success) {
+    console.log("[v0] getArticles Zod error:", JSON.stringify(parsed.error.issues.slice(0, 3)));
+    return [];
+  }
 
-    const parsed = z.array(articleSchema).safeParse(result.value);
-    if (!parsed.success) return [];
-
-    return parsed.data.map(mapArticle);
-  },
-);
+  return parsed.data.map(mapArticle).filter((a) => a.slug);
+});
 
 /** Fetch a single article by its slug. */
 export const getArticleBySlug = cache(
@@ -192,9 +124,7 @@ export const getAllArticleSlugs = cache(async (): Promise<string[]> => {
   const result = await fetchSanityDirect(ALL_SLUGS_QUERY, undefined, ["article"]);
   if (result.isErr()) return [];
 
-  const parsed = z
-    .array(z.object({ slug: z.string() }))
-    .safeParse(result.value);
+  const parsed = z.array(z.object({ slug: z.string() })).safeParse(result.value);
   if (!parsed.success) return [];
 
   return parsed.data.map((r) => r.slug).filter(Boolean);

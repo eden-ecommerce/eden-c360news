@@ -1,6 +1,6 @@
 "use client";
 
-import { type Article, type ArticleCategory } from "@lib/sanity/get-articles";
+import { type Article } from "@lib/sanity/get-articles";
 import { CategoryFilter } from "@components/blog/CategoryFilter";
 import { ArticleGrid } from "@components/blog/ArticleGrid";
 import { useSearchParams } from "next/navigation";
@@ -8,19 +8,17 @@ import { useMemo } from "react";
 
 type BlogListingPageProps = {
   articles: Article[];
-  categories: ArticleCategory[];
+  tags: string[];
 };
 
-export function BlogListingPage({ articles, categories }: BlogListingPageProps) {
+export function BlogListingPage({ articles, tags }: BlogListingPageProps) {
   const searchParams = useSearchParams();
-  const activeSlug = searchParams.get("category") || null;
+  const activeTag = searchParams.get("tag") || null;
 
   const filtered = useMemo(() => {
-    if (!activeSlug) return articles;
-    return articles.filter((a) =>
-      a.categories.some((c) => c.slug === activeSlug),
-    );
-  }, [articles, activeSlug]);
+    if (!activeTag) return articles;
+    return articles.filter((a) => a.tags.includes(activeTag));
+  }, [articles, activeTag]);
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -34,24 +32,20 @@ export function BlogListingPage({ articles, categories }: BlogListingPageProps) 
         </p>
       </header>
 
-      {/* Category filter */}
-      {categories.length > 0 && (
+      {/* Tag filter */}
+      {tags.length > 0 && (
         <div className="mb-8">
-          <CategoryFilter categories={categories} activeSlug={activeSlug} />
+          <CategoryFilter tags={tags} activeTag={activeTag} />
         </div>
       )}
 
       {/* Results count */}
       <p className="text-sm text-muted-foreground mb-6">
-        {filtered.length === 1
-          ? "1 article"
-          : `${filtered.length} articles`}
-        {activeSlug && (
+        {filtered.length === 1 ? "1 article" : `${filtered.length} articles`}
+        {activeTag && (
           <>
-            {" "}in{" "}
-            <span className="font-medium text-foreground">
-              {categories.find((c) => c.slug === activeSlug)?.title ?? activeSlug}
-            </span>
+            {" "}tagged{" "}
+            <span className="font-medium text-foreground">{activeTag}</span>
           </>
         )}
       </p>

@@ -1,46 +1,44 @@
 "use client";
 
-import { type ArticleCategory } from "@lib/sanity/get-articles";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback } from "react";
 
 type CategoryFilterProps = {
-  categories: ArticleCategory[];
-  activeSlug: string | null;
+  tags: string[];
+  activeTag: string | null;
 };
 
-export function CategoryFilter({ categories, activeSlug }: CategoryFilterProps) {
+export function CategoryFilter({ tags, activeTag }: CategoryFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const setCategory = useCallback(
-    (slug: string | null) => {
+  const setTag = useCallback(
+    (tag: string | null) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (slug) {
-        params.set("category", slug);
+      if (tag) {
+        params.set("tag", tag);
       } else {
-        params.delete("category");
+        params.delete("tag");
       }
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [router, searchParams, pathname],
   );
 
-  if (categories.length === 0) return null;
+  if (tags.length === 0) return null;
 
   return (
-    <nav aria-label="Filter articles by category">
+    <nav aria-label="Filter articles by tag">
       <ul className="flex flex-wrap gap-2">
-        {/* "All" pill */}
         <li>
           <button
             type="button"
-            onClick={() => setCategory(null)}
-            aria-pressed={activeSlug === null}
+            onClick={() => setTag(null)}
+            aria-pressed={activeTag === null}
             className={[
               "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
-              activeSlug === null
+              activeTag === null
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
             ].join(" ")}
@@ -49,20 +47,20 @@ export function CategoryFilter({ categories, activeSlug }: CategoryFilterProps) 
           </button>
         </li>
 
-        {categories.map((cat) => (
-          <li key={cat.id}>
+        {tags.map((tag) => (
+          <li key={tag}>
             <button
               type="button"
-              onClick={() => setCategory(cat.slug)}
-              aria-pressed={activeSlug === cat.slug}
+              onClick={() => setTag(tag)}
+              aria-pressed={activeTag === tag}
               className={[
                 "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
-                activeSlug === cat.slug
+                activeTag === tag
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               ].join(" ")}
             >
-              {cat.title}
+              {tag}
             </button>
           </li>
         ))}

@@ -1,5 +1,5 @@
 import { getArticles } from "@lib/sanity/get-articles";
-import { getArticleCategories } from "@lib/sanity/get-categories";
+import { getArticleTags } from "@lib/sanity/get-categories";
 import { BlogListingPage } from "@components/blog/BlogListingPage";
 import { isSanityEnvConfigured } from "@lib/sanity/direct-fetch";
 import { IntegrationEnvError } from "@components/common/IntegrationEnvError";
@@ -16,10 +16,10 @@ export default async function BlogPage() {
     return <IntegrationEnvError integration="sanity" />;
   }
 
-  const [articles, categories] = await Promise.all([
+  const [articles, tags] = await Promise.all([
     getArticles(),
-    getArticleCategories(),
+    getArticleTags(),
   ]);
 
-  return <BlogListingPage articles={articles} categories={categories} />;
+  return <BlogListingPage articles={articles} tags={tags} />;
 }

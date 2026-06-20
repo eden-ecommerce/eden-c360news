@@ -1,5 +1,4 @@
 import { type Article } from "@lib/sanity/get-articles";
-import { getSanityImage } from "@lib/sanity/image";
 import Link from "next/link";
 
 type ArticleCardProps = {
@@ -16,44 +15,21 @@ function formatDate(iso: string): string {
 
 export function ArticleCard({ article }: ArticleCardProps) {
   const href = `/blog/${article.slug}`;
-
-  const imageProps = article.mainImage?.asset?._ref
-    ? getSanityImage(article.mainImage, { width: 720, height: 480 })
-    : null;
-
-  const primaryCategory = article.categories[0] ?? null;
+  const primaryTag = article.tags[0] ?? null;
 
   return (
     <article className="group flex flex-col bg-card border border-border rounded-lg overflow-hidden transition-shadow hover:shadow-md">
-      {/* Image */}
-      <Link href={href} aria-hidden tabIndex={-1} className="block overflow-hidden aspect-video bg-muted">
-        {imageProps ? (
-          <img
-            src={imageProps.url}
-            alt={imageProps.alt || article.title}
-            width={imageProps.width}
-            height={imageProps.height}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted">
-            <span className="text-muted-foreground text-sm">No image</span>
-          </div>
-        )}
-      </Link>
-
       {/* Content */}
       <div className="flex flex-col flex-1 p-5 gap-3">
-        {/* Category badge */}
-        {primaryCategory && (
+        {/* Tag badge */}
+        {primaryTag && (
           <span className="text-xs font-medium uppercase tracking-wider text-primary">
-            {primaryCategory.title}
+            {primaryTag}
           </span>
         )}
 
         {/* Title */}
-        <h2 className="text-lg font-semibold leading-snug text-foreground text-balance">
+        <h2 className="text-base font-semibold leading-snug text-foreground text-balance">
           <Link href={href} className="hover:text-primary transition-colors">
             {article.title}
           </Link>
@@ -70,7 +46,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
         {article.publishedAt && (
           <time
             dateTime={article.publishedAt}
-            className="text-xs text-muted-foreground mt-auto pt-2 border-t border-border"
+            className="text-xs text-muted-foreground mt-auto pt-3 border-t border-border block"
           >
             {formatDate(article.publishedAt)}
           </time>
