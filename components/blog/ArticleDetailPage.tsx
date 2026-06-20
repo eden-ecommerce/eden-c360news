@@ -1,5 +1,4 @@
 import { type Article } from "@lib/sanity/get-articles";
-import { sanityImageUrl } from "@lib/sanity/image-url";
 import { PortableText } from "@components/ui/PortableText";
 import type { AlgoliaProductHit } from "@lib/algolia/fetch-products-by-isbn";
 import Image from "next/image";
@@ -19,12 +18,7 @@ function formatDate(iso: string): string {
 }
 
 export function ArticleDetailPage({ article, carouselProductMap }: ArticleDetailPageProps) {
-  const heroUrl = article.thumbnail
-    ? sanityImageUrl(
-        { _type: "reference", _ref: article.thumbnail.assetRef },
-        { width: 1200, height: 630, fit: "crop" },
-      )
-    : null;
+  const heroUrl = article.thumbnailUrlHero;
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
