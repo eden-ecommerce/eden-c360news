@@ -33,30 +33,29 @@ export function ArticleDetailPage({ article, carouselProductMap }: ArticleDetail
         </Link>
       </nav>
 
-      {/* Tag labels */}
-      {article.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {article.tags.map((tag) => (
-            <Link
-              key={tag}
-              href={`/blog?tag=${encodeURIComponent(tag)}`}
-              className="text-xs font-medium uppercase tracking-wider text-primary hover:underline"
-            >
-              {tag}
-            </Link>
-          ))}
-        </div>
-      )}
-
       {/* Title */}
       <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight text-balance mb-4">
         {article.title}
       </h1>
 
-      {/* Metadata row */}
+      {/* Metadata row + tag pills */}
       <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-8 pb-8 border-b border-border">
         {article.publishedAt && (
           <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+        )}
+        {article.tags.length > 0 && (
+          <>
+            <span aria-hidden className="text-border">|</span>
+            {article.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/blog?tag=${encodeURIComponent(tag)}`}
+                className="px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                {tag}
+              </Link>
+            ))}
+          </>
         )}
       </div>
 
