@@ -103,7 +103,7 @@ const ARTICLE_FIELDS = `
 // datePublished may be stored as a date-only string ("2026-06-19") or a full
 // datetime. Casting both sides to string and comparing handles both formats;
 // dateTime() coercion is unreliable for date-only values in GROQ.
-const PUBLISHED_FILTER = `_type == "article" && defined(slug.current) && string(datePublished) <= string(now()) && "Christian360News" in tags`;
+const PUBLISHED_FILTER = `_type == "article" && string(datePublished) <= string(now()) && "Christian360News" in tags`;
 
 const ARTICLES_QUERY = `*[${PUBLISHED_FILTER}] | order(datePublished desc) [0..99] {
   ${ARTICLE_FIELDS}
@@ -113,7 +113,7 @@ const ARTICLES_BY_TAG_QUERY = `*[${PUBLISHED_FILTER} && $tag in tags] | order(da
   ${ARTICLE_FIELDS}
 }`;
 
-const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug && string(datePublished) <= string(now()) && "Christian360News" in tags][0] {
+const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug && "Christian360News" in tags][0] {
   ${ARTICLE_FIELDS},
   richText[]
 }`;
@@ -131,7 +131,7 @@ export const getArticles = cache(async (): Promise<Article[]> => {
   const parsed = z.array(articleSchema).safeParse(result.value);
   if (!parsed.success) return [];
 
-  return parsed.data.map(mapArticle).filter((a) => a.slug);
+  return parsed.data.map(mapArticle);
 });
 
 export const getArticlesByTag = cache(async (tag: string): Promise<Article[]> => {
@@ -145,7 +145,7 @@ export const getArticlesByTag = cache(async (tag: string): Promise<Article[]> =>
   const parsed = z.array(articleSchema).safeParse(result.value);
   if (!parsed.success) return [];
 
-  return parsed.data.map(mapArticle).filter((a) => a.slug);
+  return parsed.data.map(mapArticle);
 });
 
 export const getArticleBySlug = cache(
