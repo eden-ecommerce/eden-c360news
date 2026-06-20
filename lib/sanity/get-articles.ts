@@ -100,8 +100,10 @@ const ARTICLE_FIELDS = `
 `;
 
 // "Christian360News" in tags scopes all queries to the christian-news namespace.
-// datePublished <= now() ensures only past (published) articles are returned.
-const PUBLISHED_FILTER = `_type == "article" && defined(slug.current) && datePublished <= now() && "Christian360News" in tags`;
+// datePublished may be stored as a date-only string ("2026-06-19") or a full
+// datetime. Casting both sides to string and comparing handles both formats;
+// dateTime() coercion is unreliable for date-only values in GROQ.
+const PUBLISHED_FILTER = `_type == "article" && defined(slug.current) && string(datePublished) <= string(now()) && "Christian360News" in tags`;
 
 const ARTICLES_QUERY = `*[${PUBLISHED_FILTER}] | order(datePublished desc) [0..99] {
   ${ARTICLE_FIELDS}
@@ -111,7 +113,7 @@ const ARTICLES_BY_TAG_QUERY = `*[${PUBLISHED_FILTER} && $tag in tags] | order(da
   ${ARTICLE_FIELDS}
 }`;
 
-const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug && datePublished <= now() && "Christian360News" in tags][0] {
+const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug && string(datePublished) <= string(now()) && "Christian360News" in tags][0] {
   ${ARTICLE_FIELDS},
   richText[]
 }`;
