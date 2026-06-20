@@ -21,8 +21,8 @@ export function HeroArticle({ article }: HeroArticleProps) {
 
   return (
     <article className="group relative w-full overflow-hidden bg-foreground" aria-label="Featured story">
-      {/* Background image */}
-      <div className="relative w-full aspect-[21/9] min-h-[320px] md:min-h-[420px]">
+      {/* Background image — capped so it never fills the full viewport */}
+      <div className="relative w-full aspect-[21/9] min-h-[220px] max-h-[380px]">
         {article.thumbnailUrl ? (
           <Image
             src={article.thumbnailUrl}
