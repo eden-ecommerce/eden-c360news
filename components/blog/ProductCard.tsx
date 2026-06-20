@@ -58,26 +58,26 @@ export function ProductCard({ product }: Props) {
 
       {/* Details */}
       <div className="flex flex-col flex-1 p-3 gap-1">
-        <p className="text-sm font-semibold leading-snug line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+        <span className="block text-sm font-semibold leading-snug line-clamp-2 text-foreground group-hover:text-primary transition-colors">
           {product.product_name ?? "Untitled"}
-        </p>
+        </span>
         {product.author && (
-          <p className="text-xs text-muted-foreground">by {product.author}</p>
+          <span className="block text-xs text-muted-foreground">by {product.author}</span>
         )}
         {(product.format || stockText) && (
-          <p className="text-xs text-muted-foreground">
+          <span className="block text-xs text-muted-foreground">
             {[product.format, stockText].filter(Boolean).join(" | ")}
-          </p>
+          </span>
         )}
         {typeof product.price === "number" && (
-          <p className="text-sm font-bold text-foreground mt-auto pt-1">
+          <span className="block text-sm font-bold text-foreground mt-auto pt-1">
             £{product.price.toFixed(2)}{" "}
             {inStock && (
               <span className="text-xs font-normal text-muted-foreground">
                 | Today&apos;s Price
               </span>
             )}
-          </p>
+          </span>
         )}
       </div>
 
