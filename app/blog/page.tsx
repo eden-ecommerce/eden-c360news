@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getArticles } from "@lib/sanity/get-articles";
 import { getArticleTags } from "@lib/sanity/get-categories";
 import { BlogListingPage } from "@components/blog/BlogListingPage";
