@@ -17,7 +17,7 @@ function formatDate(iso: string): string {
 }
 
 export function ArticleCard({ article }: ArticleCardProps) {
-  const href = article.slug ? `${NAMESPACE_PATH}/${article.slug}` : null;
+  const href = article.id ? `${NAMESPACE_PATH}/${article.id}` : null;
   const primaryTag = article.tags[0] ?? null;
   const thumbnailUrl = article.thumbnailUrl;
 

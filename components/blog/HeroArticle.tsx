@@ -16,7 +16,7 @@ function formatDate(iso: string): string {
 }
 
 export function HeroArticle({ article }: HeroArticleProps) {
-  const href = article.slug ? `${NAMESPACE_PATH}/${article.slug}` : null;
+  const href = article.id ? `${NAMESPACE_PATH}/${article.id}` : null;
   const primaryTag = article.tags[0] ?? null;
 
   return (
