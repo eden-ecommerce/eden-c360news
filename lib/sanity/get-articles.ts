@@ -5,20 +5,17 @@ import { cache } from "react";
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
-// Zod schema — reflects the confirmed live article schema.
-// Fields discovered via exploratory GROQ: _id, title, slug.current,
-// richText, datePublished, metaDescription, pageTitle, tags (string[]),
-// authors (reference array).
+// Schema — confirmed against live Sanity data.
+// slug is projected as a plain string via "slug": slug.current in GROQ.
+// tags is string[] or null. datePublished is ISO string or null.
 // ---------------------------------------------------------------------------
 
 const portableTextBlockSchema = z.record(z.unknown());
 
 const articleSchema = z.object({
   _id: z.string().nullish(),
-  _updatedAt: z.string().nullish(),
   title: z.string().nullish(),
-  pageTitle: z.string().nullish(),
-  slug: z.object({ current: z.string().nullish() }).nullish(),
+  slug: z.string().nullish(),
   metaDescription: z.string().nullish(),
   datePublished: z.string().nullish(),
   tags: z.array(z.string()).nullish(),
@@ -26,7 +23,7 @@ const articleSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
-// Domain types
+// Domain type
 // ---------------------------------------------------------------------------
 
 export type Article = {
@@ -47,34 +44,31 @@ export type Article = {
 const mapArticle = (raw: z.infer<typeof articleSchema>): Article => ({
   id: raw._id ?? "",
   title: raw.title ?? "",
-  slug: raw.slug?.current ?? "",
+  slug: raw.slug ?? "",
   excerpt: raw.metaDescription ?? null,
   richText: raw.richText ?? null,
   publishedAt: raw.datePublished ?? null,
-  tags: raw.tags ?? [],  // nullish coalesces both null and undefined to []
+  tags: raw.tags ?? [],
 });
 
 // ---------------------------------------------------------------------------
 // GROQ queries
+// Use "slug": slug.current to project the slug string directly.
 // ---------------------------------------------------------------------------
 
 const ARTICLE_FIELDS = `
   _id,
-  _updatedAt,
   title,
-  pageTitle,
-  slug,
+  "slug": slug.current,
   metaDescription,
   datePublished,
   tags
 `;
 
-// Fetch listing data (no richText — keep payload small)
 const ARTICLES_QUERY = `*[_type == "article" && defined(slug.current)] | order(datePublished desc) [0..99] {
   ${ARTICLE_FIELDS}
 }`;
 
-// Fetch single article with full richText body
 const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0] {
   ${ARTICLE_FIELDS},
   richText[]
@@ -83,24 +77,19 @@ const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0]
 const ALL_SLUGS_QUERY = `*[_type == "article" && defined(slug.current)]{ "slug": slug.current }`;
 
 // ---------------------------------------------------------------------------
-// Public API — all cache()-wrapped per the established pattern
+// Public API
 // ---------------------------------------------------------------------------
 
-/** Fetch articles for the listing page, optionally filtered by a tag. */
 export const getArticles = cache(async (): Promise<Article[]> => {
   const result = await fetchSanityDirect(ARTICLES_QUERY, undefined, ["article"]);
   if (result.isErr()) return [];
 
   const parsed = z.array(articleSchema).safeParse(result.value);
-  if (!parsed.success) {
-    console.log("[v0] getArticles Zod error:", JSON.stringify(parsed.error.issues.slice(0, 3)));
-    return [];
-  }
+  if (!parsed.success) return [];
 
   return parsed.data.map(mapArticle).filter((a) => a.slug);
 });
 
-/** Fetch a single article by its slug. */
 export const getArticleBySlug = cache(
   async (slug: string): Promise<Article | null> => {
     const result = await fetchSanityDirect(
@@ -108,7 +97,6 @@ export const getArticleBySlug = cache(
       { slug },
       ["article", `article:${slug}`],
     );
-
     if (result.isErr()) return null;
     if (!result.value) return null;
 
@@ -119,7 +107,6 @@ export const getArticleBySlug = cache(
   },
 );
 
-/** Fetch all article slugs for generateStaticParams. */
 export const getAllArticleSlugs = cache(async (): Promise<string[]> => {
   const result = await fetchSanityDirect(ALL_SLUGS_QUERY, undefined, ["article"]);
   if (result.isErr()) return [];
