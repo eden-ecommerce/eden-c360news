@@ -63,6 +63,9 @@ export type Article = {
 // Mapper
 // ---------------------------------------------------------------------------
 
+/** Tags that are internal namespace filters and must never be shown to users. */
+const INTERNAL_TAGS = new Set(["Christian360News"]);
+
 const mapArticle = (raw: z.infer<typeof articleSchema>): Article => {
   const assetRef = raw.thumbnail?.asset?._ref ?? null;
   const imageSource = assetRef ? { _type: "reference" as const, _ref: assetRef } : null;
@@ -80,7 +83,7 @@ const mapArticle = (raw: z.infer<typeof articleSchema>): Article => {
     thumbnailUrlHero: sanityImageUrl(imageSource, { width: 1200, height: 630, fit: "crop" }),
     richText: raw.richText ?? null,
     publishedAt: raw.datePublished ?? null,
-    tags: raw.tags ?? [],
+    tags: (raw.tags ?? []).filter((t) => !INTERNAL_TAGS.has(t)),
   };
 };
 
