@@ -16,7 +16,7 @@ function formatDate(iso: string): string {
 }
 
 export function HeroArticle({ article }: HeroArticleProps) {
-  const href = `${NAMESPACE_PATH}/${article.slug}`;
+  const href = article.slug ? `${NAMESPACE_PATH}/${article.slug}` : null;
   const primaryTag = article.tags[0] ?? null;
 
   return (
@@ -48,9 +48,13 @@ export function HeroArticle({ article }: HeroArticleProps) {
           )}
 
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight text-balance max-w-3xl">
-            <Link href={href} className="hover:text-primary/90 transition-colors">
-              {article.title}
-            </Link>
+            {href ? (
+              <Link href={href} className="hover:text-primary/90 transition-colors">
+                {article.title}
+              </Link>
+            ) : (
+              article.title
+            )}
           </h2>
 
           {article.excerpt && (
@@ -65,12 +69,14 @@ export function HeroArticle({ article }: HeroArticleProps) {
                 {formatDate(article.publishedAt)}
               </time>
             )}
-            <Link
-              href={href}
-              className="text-xs font-bold uppercase tracking-wider text-white border border-white/50 px-4 py-1.5 hover:bg-white hover:text-foreground transition-colors"
-            >
-              Read Story
-            </Link>
+            {href && (
+              <Link
+                href={href}
+                className="text-xs font-bold uppercase tracking-wider text-white border border-white/50 px-4 py-1.5 hover:bg-white hover:text-foreground transition-colors"
+              >
+                Read Story
+              </Link>
+            )}
           </div>
         </div>
       </div>

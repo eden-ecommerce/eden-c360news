@@ -1,14 +1,11 @@
 "use client";
 
 import { type Article } from "@lib/sanity/get-articles";
-import { CategoryFilter } from "@components/blog/CategoryFilter";
 import { ArticleGrid } from "@components/blog/ArticleGrid";
 import { HeroArticle } from "@components/blog/HeroArticle";
 
 type BlogListingPageProps = {
   articles: Article[];
-  tags: string[];
-  activeTag: string | null;
 };
 
 function formatMastheadDate(): string {
@@ -20,8 +17,8 @@ function formatMastheadDate(): string {
   });
 }
 
-export function BlogListingPage({ articles, tags, activeTag }: BlogListingPageProps) {
-  const heroArticle = !activeTag && articles.length > 0 ? articles[0] : null;
+export function BlogListingPage({ articles }: BlogListingPageProps) {
+  const heroArticle = articles.length > 0 ? articles[0] : null;
   const remainingArticles = heroArticle ? articles.slice(1) : articles;
 
   return (
@@ -43,16 +40,7 @@ export function BlogListingPage({ articles, tags, activeTag }: BlogListingPagePr
         </div>
       </div>
 
-      {/* Topic filter strip */}
-      {tags.length > 0 && (
-        <div className="border-b border-border bg-muted/40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-            <CategoryFilter tags={tags} activeTag={activeTag} />
-          </div>
-        </div>
-      )}
-
-      {/* Hero story — shown only when not filtering */}
+      {/* Hero story */}
       {heroArticle && (
         <div className="border-b border-border">
           <HeroArticle article={heroArticle} />
@@ -64,13 +52,7 @@ export function BlogListingPage({ articles, tags, activeTag }: BlogListingPagePr
         {/* Section heading */}
         <div className="flex items-center justify-between mb-6 pb-3 border-b-2 border-foreground">
           <h2 className="text-xs font-bold uppercase tracking-widest text-foreground">
-            {activeTag ? (
-              <>
-                Topic: <span className="text-primary">{activeTag}</span>
-              </>
-            ) : (
-              "Latest News"
-            )}
+            Latest News
           </h2>
           <span className="text-xs text-muted-foreground">
             {remainingArticles.length === 1
