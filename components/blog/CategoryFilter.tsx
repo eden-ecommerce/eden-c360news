@@ -29,18 +29,18 @@ export function CategoryFilter({ tags, activeTag }: CategoryFilterProps) {
   if (tags.length === 0) return null;
 
   return (
-    <nav aria-label="Filter articles by tag">
-      <ul className="flex flex-wrap gap-2">
+    <nav aria-label="Filter news by topic">
+      <ul className="flex flex-wrap gap-x-1 gap-y-1">
         <li>
           <button
             type="button"
             onClick={() => setTag(null)}
             aria-pressed={activeTag === null}
             className={[
-              "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
+              "px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors",
               activeTag === null
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted",
             ].join(" ")}
           >
             All
@@ -54,10 +54,10 @@ export function CategoryFilter({ tags, activeTag }: CategoryFilterProps) {
               onClick={() => setTag(tag)}
               aria-pressed={activeTag === tag}
               className={[
-                "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
+                "px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors",
                 activeTag === tag
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
               ].join(" ")}
             >
               {tag}

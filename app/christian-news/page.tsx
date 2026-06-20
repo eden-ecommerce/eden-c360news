@@ -8,16 +8,16 @@ import { IntegrationEnvError } from "@components/common/IntegrationEnvError";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Articles",
+  title: "Christian News",
   description:
-    "Read Christian articles, devotionals and news from Eden.co.uk — encouraging and equipping Christians across the UK.",
+    "The latest Christian news, articles and stories from Eden.co.uk — encouraging and equipping Christians across the UK.",
 };
 
 type Props = {
   searchParams: Promise<{ tag?: string }>;
 };
 
-export default async function BlogPage({ searchParams }: Props) {
+export default async function ChristianNewsPage({ searchParams }: Props) {
   if (!isSanityEnvConfigured()) {
     return <IntegrationEnvError integration="sanity" />;
   }

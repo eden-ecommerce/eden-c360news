@@ -16,11 +16,11 @@
  *   https://www.eden.co.uk/events/_next/static/…
  * The Worker forwards /events/* back to this deployment.
  */
-export const ASSET_PRODUCTION_ORIGIN = "https://www.eden.co.uk/blog";
+export const ASSET_PRODUCTION_ORIGIN = "https://www.eden.co.uk/christian-news";
 export const ASSET_DEV_ORIGIN = "http://localhost:3000";
 
 /** API origin (may differ from assets) */
-export const API_PRODUCTION_ORIGIN = "https://www.eden.co.uk/blog";
+export const API_PRODUCTION_ORIGIN = "https://www.eden.co.uk/christian-news";
 export const API_DEV_ORIGIN = "http://localhost:3000";
 
 // Origin resolution:

@@ -56,7 +56,7 @@ async function prefetchCarouselProducts(
   return productMap;
 }
 
-export default async function ArticlePage({ params }: Props) {
+export default async function ChristianNewsArticlePage({ params }: Props) {
   const { slug } = await params;
 
   if (!isSanityEnvConfigured()) notFound();
