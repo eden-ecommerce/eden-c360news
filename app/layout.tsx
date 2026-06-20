@@ -14,18 +14,18 @@ const geistMono = Geist_Mono({
 
 // Default OG image used when a page doesn't supply its own.
 // Absolute URL required by the OG spec — metadataBase resolves relative paths.
-const DEFAULT_OG_IMAGE = "https://www.eden.co.uk/events/og-default.png";
+const DEFAULT_OG_IMAGE = "https://www.eden.co.uk/blog/og-default.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.eden.co.uk"),
   title: {
-    default: "Christian Events Near You | Eden.co.uk",
-    template: "%s | Eden Events",
+    default: "Christian Articles & Blog | Eden.co.uk",
+    template: "%s | Eden Blog",
   },
   description:
-    "Find Christian events, conferences, training and gatherings across the UK. Search by location or browse by region, county and town.",
+    "Read Christian articles, devotionals and news from Eden.co.uk — encouraging and equipping Christians across the UK.",
   openGraph: {
-    siteName: "Eden Events",
+    siteName: "Eden Blog",
     locale: "en_GB",
     type: "website",
     images: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
         url: DEFAULT_OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "Christian Events — Eden.co.uk",
+        alt: "Christian Articles — Eden.co.uk",
       },
     ],
   },
