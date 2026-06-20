@@ -100,7 +100,8 @@ const ARTICLE_FIELDS = `
 `;
 
 // datePublished <= now() ensures only past (published) articles are returned.
-const PUBLISHED_FILTER = `_type == "article" && defined(slug.current) && datePublished <= now()`;
+// "Christian360News" in tags scopes all queries to the christian-news namespace.
+const PUBLISHED_FILTER = `_type == "article" && defined(slug.current) && datePublished <= now() && "Christian360News" in tags`;
 
 const ARTICLES_QUERY = `*[${PUBLISHED_FILTER}] | order(datePublished desc) [0..99] {
   ${ARTICLE_FIELDS}
@@ -110,7 +111,7 @@ const ARTICLES_BY_TAG_QUERY = `*[${PUBLISHED_FILTER} && $tag in tags] | order(da
   ${ARTICLE_FIELDS}
 }`;
 
-const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug && datePublished <= now()][0] {
+const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug && datePublished <= now() && "Christian360News" in tags][0] {
   ${ARTICLE_FIELDS},
   richText[]
 }`;

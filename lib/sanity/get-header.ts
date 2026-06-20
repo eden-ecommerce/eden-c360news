@@ -40,7 +40,7 @@ const headerSchema = z
   })
   .passthrough();
 
-const HEADER_QUERY = `*[_type == "header"][0]`;
+const HEADER_QUERY = `*[_type == "header" && "Christian360News" in tags][0]`;
 
 const mapHeader = (data: z.infer<typeof headerSchema>): Header => {
   const navigationLinks = (data.navigationBar?.panels ?? [])
