@@ -39,7 +39,7 @@ export type SearchPageContent = {
  * Fetches the organisationEventSearch page content from Sanity.
  * Sanity doc id: 97e4a372-709f-43cb-9d8e-bb7811b8b807
  */
-const QUERY = `*[_type == "pages" && _id == "97e4a372-709f-43cb-9d8e-bb7811b8b807"][0]{
+const QUERY = `*[_type == "pages" && _id == "97e4a372-709f-43cb-9d8e-bb7811b8b807" && "Christian360News" in tags][0]{
   title,
   description,
   panels[] {

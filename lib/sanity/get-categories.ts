@@ -4,9 +4,9 @@ import { fetchSanityDirect } from "@lib/sanity/direct-fetch";
 import { cache } from "react";
 import { z } from "zod";
 
-// Fetch the 40 most-used tags across articles, ordered by frequency descending.
+// Fetch the 40 most-used tags across articles scoped to the christian-news namespace.
 const TAGS_QUERY = `
-  *[_type == "article" && defined(tags)] {
+  *[_type == "article" && defined(tags) && "Christian360News" in tags] {
     tags[]
   }
 `;
