@@ -17,7 +17,7 @@ function formatDate(iso: string): string {
 }
 
 export function ArticleCard({ article }: ArticleCardProps) {
-  const href = article.slug ? `${NAMESPACE_PATH}/${article.slug}` : null;
+  const href = article.id ? `${NAMESPACE_PATH}/${article.id}` : null;
   const primaryTag = article.tags[0] ?? null;
   const thumbnailUrl = article.thumbnailUrl;
 
@@ -61,7 +61,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
       </ImageWrapper>
 
       {/* Content */}
-      <div className="flex flex-col flex-1 p-4 gap-2">
+      <div className="flex flex-col flex-1 p-5 gap-3">
         {/* Category pill */}
         {primaryTag && (
           <span className="inline-flex self-start text-[10px] font-bold uppercase tracking-widest bg-primary text-primary-foreground px-2 py-0.5">

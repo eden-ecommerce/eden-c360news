@@ -113,7 +113,7 @@ const ARTICLES_BY_TAG_QUERY = `*[${PUBLISHED_FILTER} && $tag in tags] | order(da
   ${ARTICLE_FIELDS}
 }`;
 
-const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug && "Christian360News" in tags][0] {
+const ARTICLE_BY_ID_QUERY = `*[_type == "article" && _id == $id && "Christian360News" in tags][0] {
   ${ARTICLE_FIELDS},
   richText[]
 }`;
@@ -148,12 +148,12 @@ export const getArticlesByTag = cache(async (tag: string): Promise<Article[]> =>
   return parsed.data.map(mapArticle);
 });
 
-export const getArticleBySlug = cache(
-  async (slug: string): Promise<Article | null> => {
+export const getArticleById = cache(
+  async (id: string): Promise<Article | null> => {
     const result = await fetchSanityDirect(
-      ARTICLE_BY_SLUG_QUERY,
-      { slug },
-      ["article", `article:${slug}`],
+      ARTICLE_BY_ID_QUERY,
+      { id },
+      ["article", `article:${id}`],
     );
     if (result.isErr()) return null;
     if (!result.value) return null;

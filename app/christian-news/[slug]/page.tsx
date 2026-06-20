@@ -1,4 +1,4 @@
-import { getArticleBySlug } from "@lib/sanity/get-articles";
+import { getArticleById } from "@lib/sanity/get-articles";
 import { isSanityEnvConfigured } from "@lib/sanity/direct-fetch";
 import { ArticleDetailPage } from "@components/blog/ArticleDetailPage";
 import {
@@ -18,7 +18,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const article = await getArticleById(slug);
   if (!article) return {};
 
   return {
@@ -61,7 +61,7 @@ export default async function ChristianNewsArticlePage({ params }: Props) {
 
   if (!isSanityEnvConfigured()) notFound();
 
-  const article = await getArticleBySlug(slug);
+  const article = await getArticleById(slug);
   if (!article) notFound();
 
   const carouselProductMap = await prefetchCarouselProducts(article.richText);

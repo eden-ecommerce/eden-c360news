@@ -16,13 +16,13 @@ function formatDate(iso: string): string {
 }
 
 export function HeroArticle({ article }: HeroArticleProps) {
-  const href = article.slug ? `${NAMESPACE_PATH}/${article.slug}` : null;
+  const href = article.id ? `${NAMESPACE_PATH}/${article.id}` : null;
   const primaryTag = article.tags[0] ?? null;
 
   return (
     <article className="group relative w-full overflow-hidden bg-foreground" aria-label="Featured story">
-      {/* Background image */}
-      <div className="relative w-full aspect-[21/9] min-h-[320px] md:min-h-[420px]">
+      {/* Background image — capped so it never fills the full viewport */}
+      <div className="relative w-full aspect-[21/9] min-h-[220px] max-h-[380px]">
         {article.thumbnailUrl ? (
           <Image
             src={article.thumbnailUrl}

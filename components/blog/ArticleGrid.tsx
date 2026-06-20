@@ -17,11 +17,9 @@ export function ArticleGrid({ articles }: ArticleGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-border">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {articles.map((article) => (
-        <div key={article.id} className="bg-background">
-          <ArticleCard article={article} />
-        </div>
+        <ArticleCard key={article.id} article={article} />
       ))}
     </div>
   );
