@@ -1,11 +1,13 @@
 import { type Article } from "@lib/sanity/get-articles";
 import { sanityImageUrl } from "@lib/sanity/image-url";
 import { PortableText } from "@components/ui/PortableText";
+import type { AlgoliaProductHit } from "@lib/algolia/fetch-products-by-isbn";
 import Image from "next/image";
 import Link from "next/link";
 
 type ArticleDetailPageProps = {
   article: Article;
+  carouselProductMap?: Map<string, AlgoliaProductHit[]>;
 };
 
 function formatDate(iso: string): string {
@@ -16,7 +18,7 @@ function formatDate(iso: string): string {
   });
 }
 
-export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
+export function ArticleDetailPage({ article, carouselProductMap }: ArticleDetailPageProps) {
   const heroUrl = article.thumbnail
     ? sanityImageUrl(
         { _type: "reference", _ref: article.thumbnail.assetRef },
@@ -88,7 +90,10 @@ export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
       {/* Body */}
       {article.richText && article.richText.length > 0 ? (
         <div className="prose prose-lg prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground max-w-none">
-          <PortableText value={article.richText} />
+          <PortableText
+            value={article.richText}
+            carouselProductMap={carouselProductMap}
+          />
         </div>
       ) : (
         <p className="text-muted-foreground">No content available for this article.</p>

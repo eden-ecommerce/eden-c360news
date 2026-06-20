@@ -31,9 +31,11 @@ export const INTEGRATION_LABELS: Record<IntegrationKey, string> = {
 };
 
 export function isAlgoliaEnvConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_ALGOLIA_APP_ID && process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY,
-  );
+  const appId =
+    process.env.NEXT_PUBLIC_ALGOLIA_APP_ID ?? process.env.ALGOLIA_APPLICATION_ID;
+  const apiKey =
+    process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY ?? process.env.ALGOLIA_API_KEY;
+  return Boolean(appId && apiKey);
 }
 
 export function isEdenApiEnvConfigured(): boolean {
