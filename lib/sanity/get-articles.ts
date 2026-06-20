@@ -1,6 +1,7 @@
 import "server-only";
 
 import { fetchSanityDirect } from "@lib/sanity/direct-fetch";
+import { sanityImageUrl } from "@lib/sanity/image-url";
 import { cache } from "react";
 import { z } from "zod";
 
@@ -49,6 +50,9 @@ export type Article = {
   slug: string;
   excerpt: string | null;
   thumbnail: ArticleThumbnail;
+  /** Fully resolved CDN URL — safe to use directly in client components. */
+  thumbnailUrl: string | null;
+  thumbnailUrlHero: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   richText: any[] | null;
   publishedAt: string | null;
@@ -59,18 +63,26 @@ export type Article = {
 // Mapper
 // ---------------------------------------------------------------------------
 
-const mapArticle = (raw: z.infer<typeof articleSchema>): Article => ({
-  id: raw._id ?? "",
-  title: raw.title ?? "",
-  slug: raw.slug ?? "",
-  excerpt: raw.metaDescription ?? null,
-  thumbnail: raw.thumbnail?.asset?._ref
-    ? { assetRef: raw.thumbnail.asset._ref, alt: raw.thumbnail.alt ?? "" }
-    : null,
-  richText: raw.richText ?? null,
-  publishedAt: raw.datePublished ?? null,
-  tags: raw.tags ?? [],
-});
+const mapArticle = (raw: z.infer<typeof articleSchema>): Article => {
+  const assetRef = raw.thumbnail?.asset?._ref ?? null;
+  const imageSource = assetRef ? { _type: "reference" as const, _ref: assetRef } : null;
+  return {
+    id: raw._id ?? "",
+    title: raw.title ?? "",
+    slug: raw.slug ?? "",
+    excerpt: raw.metaDescription ?? null,
+    thumbnail: assetRef
+      ? { assetRef, alt: raw.thumbnail?.alt ?? "" }
+      : null,
+    // Resolve CDN URLs here (server-only context) so client components never
+    // need to read EDEN_SANITY_PROJECT_ID from process.env.
+    thumbnailUrl: sanityImageUrl(imageSource, { width: 600, height: 400, fit: "crop" }),
+    thumbnailUrlHero: sanityImageUrl(imageSource, { width: 1200, height: 630, fit: "crop" }),
+    richText: raw.richText ?? null,
+    publishedAt: raw.datePublished ?? null,
+    tags: raw.tags ?? [],
+  };
+};
 
 // ---------------------------------------------------------------------------
 // GROQ queries
