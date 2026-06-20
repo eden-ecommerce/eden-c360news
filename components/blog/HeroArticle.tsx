@@ -40,7 +40,8 @@ export function HeroArticle({ article }: HeroArticleProps) {
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
 
         {/* Content overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-12">
+        <div className="absolute bottom-0 left-0 right-0 py-6 md:py-10 lg:py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {primaryTag && (
             <span className="inline-flex text-[10px] font-bold uppercase tracking-widest bg-primary text-primary-foreground px-2 py-0.5 mb-3">
               {primaryTag}
@@ -77,6 +78,7 @@ export function HeroArticle({ article }: HeroArticleProps) {
                 Read Story
               </Link>
             )}
+          </div>
           </div>
         </div>
       </div>
