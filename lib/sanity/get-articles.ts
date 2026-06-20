@@ -40,7 +40,7 @@ const imageSchema = z
   })
   .passthrough();
 
-const portableTextBlockSchema = z.record(z.unknown()).passthrough();
+const portableTextBlockSchema = z.record(z.unknown());
 
 const articleSchema = z
   .object({
@@ -193,7 +193,7 @@ export const getAllArticleSlugs = cache(async (): Promise<string[]> => {
   if (result.isErr()) return [];
 
   const parsed = z
-    .array(z.object({ slug: z.string() }).passthrough())
+    .array(z.object({ slug: z.string() }))
     .safeParse(result.value);
   if (!parsed.success) return [];
 
