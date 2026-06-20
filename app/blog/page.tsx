@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getArticles } from "@lib/sanity/get-articles";
+import { getArticles, getArticlesByTag } from "@lib/sanity/get-articles";
 import { getArticleTags } from "@lib/sanity/get-categories";
 import { BlogListingPage } from "@components/blog/BlogListingPage";
 import { isSanityEnvConfigured } from "@lib/sanity/direct-fetch";
@@ -13,15 +13,22 @@ export const metadata: Metadata = {
     "Read Christian articles, devotionals and news from Eden.co.uk — encouraging and equipping Christians across the UK.",
 };
 
-export default async function BlogPage() {
+type Props = {
+  searchParams: Promise<{ tag?: string }>;
+};
+
+export default async function BlogPage({ searchParams }: Props) {
   if (!isSanityEnvConfigured()) {
     return <IntegrationEnvError integration="sanity" />;
   }
 
+  const { tag } = await searchParams;
+  const activeTag = tag ?? null;
+
   const [articles, tags] = await Promise.all([
-    getArticles(),
+    activeTag ? getArticlesByTag(activeTag) : getArticles(),
     getArticleTags(),
   ]);
 
-  return <BlogListingPage articles={articles} tags={tags} />;
+  return <BlogListingPage articles={articles} tags={tags} activeTag={activeTag} />;
 }
