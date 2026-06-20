@@ -99,16 +99,23 @@ const ARTICLE_FIELDS = `
   thumbnail{ _type, alt, asset }
 `;
 
-const ARTICLES_QUERY = `*[_type == "article" && defined(slug.current)] | order(datePublished desc) [0..99] {
+// datePublished <= now() ensures only past (published) articles are returned.
+const PUBLISHED_FILTER = `_type == "article" && defined(slug.current) && datePublished <= now()`;
+
+const ARTICLES_QUERY = `*[${PUBLISHED_FILTER}] | order(datePublished desc) [0..99] {
   ${ARTICLE_FIELDS}
 }`;
 
-const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0] {
+const ARTICLES_BY_TAG_QUERY = `*[${PUBLISHED_FILTER} && $tag in tags] | order(datePublished desc) [0..99] {
+  ${ARTICLE_FIELDS}
+}`;
+
+const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug && datePublished <= now()][0] {
   ${ARTICLE_FIELDS},
   richText[]
 }`;
 
-const ALL_SLUGS_QUERY = `*[_type == "article" && defined(slug.current)]{ "slug": slug.current }`;
+const ALL_SLUGS_QUERY = `*[${PUBLISHED_FILTER}]{ "slug": slug.current }`;
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -116,6 +123,20 @@ const ALL_SLUGS_QUERY = `*[_type == "article" && defined(slug.current)]{ "slug":
 
 export const getArticles = cache(async (): Promise<Article[]> => {
   const result = await fetchSanityDirect(ARTICLES_QUERY, undefined, ["article"]);
+  if (result.isErr()) return [];
+
+  const parsed = z.array(articleSchema).safeParse(result.value);
+  if (!parsed.success) return [];
+
+  return parsed.data.map(mapArticle).filter((a) => a.slug);
+});
+
+export const getArticlesByTag = cache(async (tag: string): Promise<Article[]> => {
+  const result = await fetchSanityDirect(
+    ARTICLES_BY_TAG_QUERY,
+    { tag },
+    ["article"],
+  );
   if (result.isErr()) return [];
 
   const parsed = z.array(articleSchema).safeParse(result.value);

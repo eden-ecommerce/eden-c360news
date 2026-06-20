@@ -3,22 +3,16 @@
 import { type Article } from "@lib/sanity/get-articles";
 import { CategoryFilter } from "@components/blog/CategoryFilter";
 import { ArticleGrid } from "@components/blog/ArticleGrid";
-import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
 
 type BlogListingPageProps = {
   articles: Article[];
   tags: string[];
+  activeTag: string | null;
 };
 
-export function BlogListingPage({ articles, tags }: BlogListingPageProps) {
-  const searchParams = useSearchParams();
-  const activeTag = searchParams.get("tag") || null;
-
-  const filtered = useMemo(() => {
-    if (!activeTag) return articles;
-    return articles.filter((a) => a.tags.includes(activeTag));
-  }, [articles, activeTag]);
+export function BlogListingPage({ articles, tags, activeTag }: BlogListingPageProps) {
+  // Articles are already filtered server-side; no client re-filter needed.
+  const filtered = articles;
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
