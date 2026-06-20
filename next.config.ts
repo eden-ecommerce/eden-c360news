@@ -33,6 +33,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "*.amazonaws.com" },
+      { protocol: "https", hostname: "www.eden.co.uk" },
     ],
   },
   async headers() {

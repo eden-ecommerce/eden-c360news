@@ -1,5 +1,7 @@
 import { type Article } from "@lib/sanity/get-articles";
+import { sanityImageUrl } from "@lib/sanity/image-url";
 import { PortableText } from "@components/ui/PortableText";
+import Image from "next/image";
 import Link from "next/link";
 
 type ArticleDetailPageProps = {
@@ -15,6 +17,13 @@ function formatDate(iso: string): string {
 }
 
 export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
+  const heroUrl = article.thumbnail
+    ? sanityImageUrl(
+        { _type: "reference", _ref: article.thumbnail.assetRef },
+        { width: 1200, height: 630, fit: "crop" },
+      )
+    : null;
+
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       {/* Back link */}
@@ -54,6 +63,20 @@ export function ArticleDetailPage({ article }: ArticleDetailPageProps) {
           <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
         )}
       </div>
+
+      {/* Hero image */}
+      {heroUrl && (
+        <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-8 bg-muted">
+          <Image
+            src={heroUrl}
+            alt={article.thumbnail?.alt ?? article.title}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 768px"
+            className="object-cover"
+          />
+        </div>
+      )}
 
       {/* Excerpt lead */}
       {article.excerpt && (
