@@ -105,11 +105,11 @@ const ARTICLE_FIELDS = `
 // dateTime() coercion is unreliable for date-only values in GROQ.
 const PUBLISHED_FILTER = `_type == "article" && string(datePublished) <= string(now()) && "Christian360News" in tags`;
 
-const ARTICLES_QUERY = `*[${PUBLISHED_FILTER}] | order(datePublished desc) [0..99] {
+const ARTICLES_QUERY = `*[${PUBLISHED_FILTER}] | order(datePublished desc) [0..29] {
   ${ARTICLE_FIELDS}
 }`;
 
-const ARTICLES_BY_TAG_QUERY = `*[${PUBLISHED_FILTER} && $tag in tags] | order(datePublished desc) [0..99] {
+const ARTICLES_BY_TAG_QUERY = `*[${PUBLISHED_FILTER} && $tag in tags] | order(datePublished desc) [0..29] {
   ${ARTICLE_FIELDS}
 }`;
 
