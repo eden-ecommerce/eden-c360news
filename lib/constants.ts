@@ -1,13 +1,13 @@
 /**
- * REPLACE: Per-project deploy origins.
+ * Production deploy origins for the Christian News app.
  *
- * Public config — safe in the client bundle. Hardcode production URLs before deploy.
+ * Public config — safe in the client bundle.
  * API and asset origins may differ. Dev always uses localhost:3000.
  *
  * Private secrets (API keys, tokens, etc.) belong in `.env` — see `@lib/env-server`.
  *
  * ASSET_BASE_URL drives `assetPrefix` in `next.config.ts` so `/_next/static/*`
- * and imported `@public/*` assets resolve correctly behind the Eden Cloudflare Worker.
+ * and imported `@public/*` assets resolve correctly.
  */
 
 /**

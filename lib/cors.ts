@@ -6,8 +6,8 @@
  * preflight `OPTIONS` request consistently.
  */
 
-/** REPLACE: the single origin allowed to call this app's API. */
-export const ALLOWED_ORIGIN = "https://www.eden.co.uk";
+/** The single origin allowed to call this app's API. */
+export const ALLOWED_ORIGIN = "https://eden-c360news.vercel.app";
 
 export const CORS_HEADERS = {
   "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
