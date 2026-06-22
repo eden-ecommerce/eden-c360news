@@ -11,16 +11,15 @@
  */
 
 /**
- * Canonical proxy origin. The app is served behind the Eden Cloudflare Worker
- * at https://www.eden.co.uk/events, so `/_next/static/*` must resolve as
- *   https://www.eden.co.uk/events/_next/static/…
- * The Worker forwards /events/* back to this deployment.
+ * Canonical proxy origin. The app is served at https://eden-c360news.vercel.app/christian-news,
+ * so `/_next/static/*` must resolve as
+ *   https://eden-c360news.vercel.app/christian-news/_next/static/…
  */
-export const ASSET_PRODUCTION_ORIGIN = "https://www.eden.co.uk/christian-news";
+export const ASSET_PRODUCTION_ORIGIN = "https://eden-c360news.vercel.app/christian-news";
 export const ASSET_DEV_ORIGIN = "http://localhost:3000";
 
 /** API origin (may differ from assets) */
-export const API_PRODUCTION_ORIGIN = "https://www.eden.co.uk/christian-news";
+export const API_PRODUCTION_ORIGIN = "https://eden-c360news.vercel.app/christian-news";
 export const API_DEV_ORIGIN = "http://localhost:3000";
 
 // Origin resolution:
