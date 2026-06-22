@@ -1,20 +1,8 @@
 /**
- * ──────────────────────────────────────────────────────────────────────────
- * REPLACE: Per-project configuration
- * ──────────────────────────────────────────────────────────────────────────
+ * Per-project configuration for the Christian News namespace.
  *
- * This app is deployed behind a Cloudflare Worker that routes by the FIRST
- * URL segment (e.g. `/churches` → this app instance).
- *
- * Every app built from this template MUST be mounted under a single namespace.
- * When starting a new project:
- *   1. Rename the `app/REPLACE` folder to your real namespace
- *      (e.g. `app/churches`).
- *   2. Update `NAMESPACE` below to match.
- *   3. Set `ASSET_PRODUCTION_ORIGIN` and `API_PRODUCTION_ORIGIN` in `lib/constants.ts`.
- *
- * Anything marked `REPLACE` in this file is intentional and must be addressed
- * before the project is considered ready.
+ * This app is deployed at https://eden-c360news.vercel.app/christian-news
+ * and mounted under the `/christian-news` namespace.
  */
 
 import { API_BASE_URL, ASSET_BASE_URL } from "@lib/constants";
